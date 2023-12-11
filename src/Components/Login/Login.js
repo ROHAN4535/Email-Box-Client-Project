@@ -1,22 +1,17 @@
-import { Form, Button } from "react-bootstrap";
-import classes from "./signup.module.css";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
-
-const SignUp = () => {
+import classes from "./Login.module.css";
+import { Form, Button } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+const Login = () => {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
+  const navigate = useNavigate();
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if (passwordRef.current.value !== confirmPasswordRef.current.value) {
-      alert("Password do not match! please type again.");
-      return;
-    }
     try {
       const res = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDDBZEKvODSB2rIgqi4EhjjLXAZrzbMvbU",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDDBZEKvODSB2rIgqi4EhjjLXAZrzbMvbU",
         {
           method: "POST",
           body: JSON.stringify({
@@ -29,12 +24,11 @@ const SignUp = () => {
           },
         }
       );
-
+      const data = await res.json();
       if (res.ok) {
-        console.log("User has successfully signed up.");
-        emailRef.current.value = "";
-        passwordRef.current.value = "";
-        confirmPasswordRef.current.value = "";
+        navigate("/profile", { replace: true });
+        console.log("token", data.idToken);
+        console.log("Login Done");
       } else {
         console.log("Authentication Failed!");
       }
@@ -45,7 +39,7 @@ const SignUp = () => {
   return (
     <div>
       <section className={classes.container}>
-        <h2>Sign Up</h2>
+        <h2>Login</h2>
         <Form onSubmit={submitHandler}>
           <Form.Group id="email" className="mb-3">
             <Form.Control
@@ -67,26 +61,16 @@ const SignUp = () => {
             />
           </Form.Group>
 
-          <Form.Group id="confirmPassword" className="mb-3">
-            <Form.Control
-              type="password"
-              placeholder="Confirm Password"
-              name="confirmPassword"
-              ref={confirmPasswordRef}
-              required
-            />
-          </Form.Group>
-
           <Button variant="primary" type="submit">
-            Sign up
+            Login
           </Button>
         </Form>
       </section>
       <section className={classes.lowersec}>
-        <Link to="/login">Have an account? Login</Link>
+        <Link to="/">Don't have an account? Sign Up</Link>
       </section>
     </div>
   );
 };
 
-export default SignUp;
+export default Login;
