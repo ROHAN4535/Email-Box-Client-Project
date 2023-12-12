@@ -8,21 +8,28 @@ import EmailMessage from "./Components/Profile/EmailMessage";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { inboxItemFill } from "./Store/inbox-slice";
+import SentEmail from "./Components/Profile/SentEmail";
+import { SentEmailItemFill } from "./Store/sentEmail-slice";
+import SentemailMessage from "./Components/Profile/SentemailMessage";
 
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(inboxItemFill(localStorage.getItem("userEmail")));
-  },[]);
+    dispatch(SentEmailItemFill(localStorage.getItem("userEmail")));
+  }, []);
   return (
     <div>
       <Routes>
-        <Route index element={<Authentication />} />
         <Route path="/" element={<RootLayout />}>
+        <Route index element={<Authentication />} />
           <Route path="/profile" element={<RootLayout2 />} exact>
             <Route path="/profile/compose" element={<Compose />} />
             <Route path="/profile/inbox" element={<Inbox />} />
             <Route path="/profile/inbox/message" element={<EmailMessage />}exact/>
+            <Route path="/profile/sentemail" element={<SentEmail />} />
+            <Route path="/profile/sentemail/message" element={<SentemailMessage/>}
+            />
           </Route>
         </Route>
       </Routes>
