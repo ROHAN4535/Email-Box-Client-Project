@@ -4,6 +4,7 @@ import { Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AuthActions } from "../../Store/auth-slice";
+import { inboxItemFill } from "../../Store/inbox-slice";
 
 const Login = () => {
   const emailRef = useRef();
@@ -32,6 +33,7 @@ const Login = () => {
       if (res.ok) {
         navigate("/profile", { replace: true });
         dispatch(AuthActions.login({tokenId: data.idToken, email: data.email}))
+        dispatch(inboxItemFill(data.email))
         console.log("Login Done");
       } else {
         console.log("Authentication Failed!");
@@ -70,9 +72,9 @@ const Login = () => {
           </Button>
         </Form>
       </section>
-      <section className={classes.lowersec}>
+      {/* <section className={classes.lowersec}>
         <Link to="/">Don't have an account? Sign Up</Link>
-      </section>
+      </section> */}
     </div>
   );
 };

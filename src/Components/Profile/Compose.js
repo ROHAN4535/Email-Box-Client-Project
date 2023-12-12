@@ -14,13 +14,23 @@ const Compose = () => {
   const formRef = useRef();
   const [editorState, updateEditorState] = useState(EditorState.createEmpty());
   const auth = useSelector((state) => state.auth);
+  const [emptyEmail, setEmptyEmail] = useState();
 
   const sendEmailHandler = async (event) => {
     event.preventDefault();
+    if (sendToEmailInputRef.current.value === "") {
+        setEmptyEmail("*Please enter recipient email");
+        setTimeout(() => {
+          setEmptyEmail(null);
+        }, 1000);
+        return;
+      }
     const emailObj = {
+      id: Math.random().toString(),
       to: sendToEmailInputRef.current.value,
       emailSub: subInputRef.current.value,
       emailContent: convertToHTML(editorState.getCurrentContent()),
+      date: new Date(),
     };
 
     try {
@@ -45,13 +55,42 @@ const Compose = () => {
     } catch (err) {
       console.log(err);
     }
+    const emailObj2 = {
+        id: Math.random().toString(),
+        from: auth.userEmail,
+        emailSub: subInputRef.current.value,
+        emailContent: convertToHTML(editorState.getCurrentContent()),
+        date: new Date(),
+        unread: true,
+      };
+      try {
+        const recivedEmail = sendToEmailInputRef.current.value.replace(
+          /[.@]/g,
+          ""
+        );
+        const res = await fetch(
+          `https://email-box-client-f9178-default-rtdb.firebaseio.com/${recivedEmail}/recievedemails.json`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              ...emailObj2,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
     formRef.current.reset();
     updateEditorState("");
   };
   return (
     <section className={classes.form}>
       <h1>Welcome to Metro mail</h1>
-      <Form onSubmit={sendEmailHandler} ref={formRef}>
+      <Form ref={formRef} onSubmit={sendEmailHandler}>
+        <p style={{ color: "red" }}>{emptyEmail}</p>
         <InputGroup className={classes.mail}>
           <InputGroup.Text id="btnGroupAddon">To</InputGroup.Text>
           <Form.Control
@@ -60,10 +99,11 @@ const Compose = () => {
             aria-label="Input group example"
             aria-describedby="btnGroupAddon"
             ref={sendToEmailInputRef}
+            className={emptyEmail ? classes.invalid : ""}
           />
-          <Button variant="primary" type="submit">
-            Send Email
-          </Button>
+          <InputGroup.Text id="btnGroupAddon">
+            <Button className={classes.ccBtn}>CC/BCC</Button>
+          </InputGroup.Text>
         </InputGroup>
         <InputGroup className={classes.subject}>
           <InputGroup.Text id="btnGroupAddon">Subject</InputGroup.Text>
@@ -84,6 +124,9 @@ const Compose = () => {
             onEditorStateChange={updateEditorState}
           />
         </Form.Group>
+        <Button variant="primary" type="submit">
+          Send Email
+        </Button>
       </Form>
     </section>
   );

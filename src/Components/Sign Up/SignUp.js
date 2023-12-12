@@ -1,7 +1,6 @@
 import { Form, Button } from "react-bootstrap";
 import classes from "./signup.module.css";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const emailRef = useRef();
@@ -82,11 +81,12 @@ const SignUp = () => {
           </Button>
         </Form>
       </section>
-      <section className={classes.lowersec}>
+      {/* <section className={classes.lowersec}>
         <Link to="/login">Have an account? Login</Link>
-      </section>
+      </section> */}
     </div>
   );
 };
 
 export default SignUp;
+        
