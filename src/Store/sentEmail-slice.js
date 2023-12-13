@@ -35,6 +35,7 @@ export const SentEmailItemFill = (email) => {
         `https://email-box-client-f9178-default-rtdb.firebaseio.com/${useremail}/sentemails.json`
       );
       const data = await res.json();
+      console.log("sentEmail render");
       if (res.ok) {
         dispatch(SentEmailActions.addItems(Object.entries(data)));
       }
