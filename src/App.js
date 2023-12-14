@@ -6,26 +6,37 @@ import Compose from "./Components/Profile/Compose";
 import Inbox from "./Components/Profile/inbox";
 import EmailMessage from "./Components/Profile/EmailMessage";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { inboxItemFill } from "./Store/inbox-slice";
 import SentEmail from "./Components/Profile/SentEmail";
 import { SentEmailItemFill } from "./Store/sentEmail-slice";
 import SentemailMessage from "./Components/Profile/SentemailMessage";
+import Profile from "./Components/Profile/Profile";
 
 function App() {
   const dispatch = useDispatch();
+  const intervalRef = useRef();
   const auth = useSelector((state) => state.auth);
-  const fetchEmailData = () => {
-    if (localStorage.getItem("userEmail")) {
+  useEffect(() => {
+    if (auth.isLoggedIn) {
+      dispatch(inboxItemFill(auth.userEmail));
+      dispatch(SentEmailItemFill(auth.userEmail));
+    }
+  });
+  useEffect(() => {
+    if (auth.isLoggedIn) {
       dispatch(inboxItemFill(localStorage.getItem("userEmail")));
       dispatch(SentEmailItemFill(localStorage.getItem("userEmail")));
+      intervalRef.current = setInterval(() => {
+        dispatch(inboxItemFill(localStorage.getItem("userEmail")));
+        dispatch(SentEmailItemFill(localStorage.getItem("userEmail")));
+        console.log("render");
+      }, 2000);
     }
-  };
-  useEffect(() => {
-    fetchEmailData();
-    const interval = setInterval(fetchEmailData, 2000);
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [auth.isLoggedIn, dispatch, auth.userEmail]);
   
   return (
     <div>
@@ -34,6 +45,7 @@ function App() {
         <Route index element={<Authentication />} />
         {auth.isLoggedIn && (
             <Route path="/profile" element={<Root2Layout />} exact >
+              <Route index element={<Profile/>}/>  
               <Route path="/profile/compose" element={<Compose />} exact />
               <Route path="/profile/inbox" element={<Inbox />} exact />
               <Route path="/profile/inbox/message" element={<EmailMessage />} exact />
